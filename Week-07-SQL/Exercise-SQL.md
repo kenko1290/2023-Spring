@@ -38,8 +38,11 @@ For this section of the exercise we will be using the `bigquery-public-data.new_
 
 ```
 
-[YOUR ANSWER HERE]
-
+SELECT
+  COUNT(*) AS count_rows
+FROM
+  `bigquery-public-data.new_york_311.311_service_requests`
+  
 ```
 
   
@@ -48,15 +51,25 @@ For this section of the exercise we will be using the `bigquery-public-data.new_
 
 ```
 
-[YOUR ANSWER HERE]
-
+SELECT
+  COUNT(*) AS open_cases
+FROM
+  `bigquery-public-data.new_york_311.311_service_requests`
+WHERE
+  status = "Open"
+  
 ```
 
 2. Write a query that returns all of the records for just _your_ zip code. (zipcode column is `incident_zip`)
 
 ```
 
-[YOUR ANSWER HERE]
+SELECT
+  *
+FROM
+  `bigquery-public-data.new_york_311.311_service_requests`
+WHERE
+  incident_zip = "11368"
 
 ```
 
@@ -65,8 +78,17 @@ For this section of the exercise we will be using the `bigquery-public-data.new_
 2. Lets find out what the most common complaint_type there is in NYC. Write a query that counts all the records for each complaint_type. Hint.. you are going to have to do a group by.
 
 ```
-
-[YOUR ANSWER HERE]
+SELECT
+  complaint_type,
+  COUNT(*) AS count
+FROM
+  `bigquery-public-data.new_york_311.311_service_requests`
+GROUP BY
+  complaint_type
+ORDER BY
+  count DESC
+LIMIT
+  1
 
 ```
 
@@ -74,7 +96,15 @@ For this section of the exercise we will be using the `bigquery-public-data.new_
 
 ```
 
-[YOUR ANSWER HERE]
+SELECT
+  agency,
+  COUNT(DISTINCT(agency_name)) as dist_count
+FROM
+  `bigquery-public-data.new_york_311.311_service_requests`
+GROUP BY
+  agency
+ORDER BY
+  dist_count DESC
 
 ```
 
@@ -84,7 +114,16 @@ For this section of the exercise we will be using the `bigquery-public-data.new_
 
 ```
 
-[YOUR ANSWER HERE]
+SELECT
+  agency_name,
+  COUNT(complaint_type) as count
+FROM
+  `bigquery-public-data.new_york_311.311_service_requests`
+GROUP BY
+  agency_name
+ORDER BY
+  count DESC
+LIMIT 5
 
 ```
 
@@ -95,7 +134,17 @@ For this section of the exercise we will be using the `bigquery-public-data.new_
 
 ```
 
-[YOUR ANSWER HERE]
+SELECT
+  complaint_type,
+  COUNT(complaint_type) as open_count
+FROM
+  `bigquery-public-data.new_york_311.311_service_requests`
+WHERE
+  status = "Open"
+GROUP BY
+  complaint_type
+ORDER BY
+  open_count DESC
 
 ```
 
@@ -106,7 +155,16 @@ For this section of the exercise we will be using the `bigquery-public-data.new_
 
 ```
 
-[YOUR ANSWER HERE]
+WITH T AS (
+  SELECT
+      unique_key,
+      COUNT(*) AS count
+    FROM
+      `bigquery-public-data.new_york_311.311_service_requests`
+    GROUP BY
+      unique_key
+  )
+SELECT * FROM T WHERE count > 1
 
 ```
 
@@ -121,7 +179,13 @@ For this section of the exercise we will be using the `bigquery-public-data.new_
 
 ```
 
-[YOUR ANSWER HERE]
+SELECT
+  gender,
+  COUNT(*) AS count
+FROM
+  `bigquery-public-data.new_york_citibike.citibike_trips`
+GROUP BY
+  gender
 
 ```
 
@@ -129,7 +193,12 @@ For this section of the exercise we will be using the `bigquery-public-data.new_
 
 ```
 
-[YOUR ANSWER HERE]
+SELECT
+  AVG(tripduration) / 60 AS avg_duration,
+  MIN(tripduration) / 60 AS min_duration,
+  MAX(tripduration) / 60 AS max_duration
+FROM
+  `bigquery-public-data.new_york_citibike.citibike_trips`
 
 ```
 
@@ -139,8 +208,34 @@ For this section of the exercise we will be using the `bigquery-public-data.new_
 
 ```
 
-[YOUR ANSWER HERE]
-
+WITH
+TABLE_STARTS AS (
+SELECT
+    start_station_name AS station,
+    COUNT(*) AS n_starts
+FROM
+    `bigquery-public-data.new_york_citibike.citibike_trips`
+GROUP BY
+    start_station_name),
+TABLE_ENDS AS (
+SELECT
+    end_station_name AS station,
+    COUNT(*) AS n_ends
+FROM
+    `bigquery-public-data.new_york_citibike.citibike_trips`
+GROUP BY
+    end_station_name)
+SELECT
+*, (n_starts + n_ends) as total
+FROM
+TABLE_STARTS
+JOIN
+TABLE_ENDS
+USING
+(station)
+ORDER BY
+  total DESC
+  
 ```
 
   
